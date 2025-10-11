@@ -44,6 +44,9 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/amazon-clone
 JWT_SECRET=your_jwt_secret_key_here_change_this_in_production
 JWT_EXPIRE=7d
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+FRONTEND_URL=http://localhost:3000
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
@@ -63,8 +66,13 @@ echo "🎉 Setup completed successfully!"
 echo ""
 echo "Next steps:"
 echo "1. Update server/.env with your configuration values"
+echo "   📖 See DEPLOY.md for detailed instructions on getting API credentials"
 echo "2. Make sure MongoDB is running (local or cloud)"
 echo "3. Run 'npm run dev' to start both frontend and backend"
 echo "4. Open http://localhost:3000 in your browser"
+echo ""
+echo "📚 Documentation:"
+echo "   - README.md: Project overview and setup"
+echo "   - DEPLOY.md: Deployment guide and API credential setup"
 echo ""
 echo "Happy coding! 🚀"

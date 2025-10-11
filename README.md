@@ -74,6 +74,9 @@ A comprehensive e-commerce platform inspired by Amazon, built with modern web te
    MONGODB_URI=mongodb://localhost:27017/amazon-clone
    JWT_SECRET=your_jwt_secret_key_here
    JWT_EXPIRE=7d
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   FRONTEND_URL=http://localhost:3000
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    CLOUDINARY_API_KEY=your_cloudinary_api_key
    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
@@ -82,6 +85,8 @@ A comprehensive e-commerce platform inspired by Amazon, built with modern web te
    EMAIL_USER=your_email@gmail.com
    EMAIL_PASS=your_email_password
    ```
+   
+   **📖 For detailed instructions on getting API credentials, see [DEPLOY.md](./DEPLOY.md)**
 
 4. **Start the application**
    ```bash
