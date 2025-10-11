@@ -127,10 +127,10 @@ Use the MongoDB URI from step 1 above.
 
 1. **Update API endpoints** in your frontend:
    ```javascript
-   // In client/src/store/slices/authSlice.js
+   // In client/src/config/api.js
    const API_BASE_URL = process.env.NODE_ENV === 'production' 
-     ? 'https://your-backend.railway.app' 
-     : 'http://localhost:5000';
+     ? 'https://your-backend.onrender.com' 
+     : 'http://localhost:5001';
    ```
 
 2. **Create vercel.json** in the root directory:
@@ -171,31 +171,42 @@ Use the MongoDB URI from step 1 above.
 
 3. **Add environment variables**:
    ```
-   REACT_APP_API_URL=https://your-backend.railway.app
+   REACT_APP_API_URL=https://your-backend.onrender.com
    REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id
    REACT_APP_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
    ```
 
 4. **Deploy**: Click "Deploy"
 
-## ⚙️ Backend Deployment (Railway)
+## ⚙️ Backend Deployment (Render) - **RECOMMENDED**
+
+### Why Render?
+- **100% Free**: No time limits, always running
+- **Better Performance**: More reliable than Railway
+- **No Credit Card**: Truly free
+- **Automatic Deployments**: From GitHub
+- **Built-in Database**: PostgreSQL included (optional)
 
 ### Step 1: Prepare Backend
 
-1. **Create railway.json** in server directory:
-   ```json
-   {
-     "build": {
-       "builder": "NIXPACKS"
-     },
-     "deploy": {
-       "startCommand": "npm start",
-       "healthcheckPath": "/api/products"
-     }
-   }
+1. **Create render.yaml** in server directory:
+   ```yaml
+   services:
+     - type: web
+       name: amazon-clone-backend
+       env: node
+       plan: free
+       buildCommand: npm install
+       startCommand: npm start
+       healthCheckPath: /api/products
+       envVars:
+         - key: NODE_ENV
+           value: production
+         - key: PORT
+           value: 10000
    ```
 
-2. **Update package.json** scripts:
+2. **Update package.json** scripts (already done):
    ```json
    {
      "scripts": {
@@ -205,24 +216,27 @@ Use the MongoDB URI from step 1 above.
    }
    ```
 
-### Step 2: Deploy to Railway
+### Step 2: Deploy to Render
 
 1. **Connect GitHub**:
-   - Go to https://railway.app
+   - Go to https://render.com
    - Sign in with GitHub
-   - Click "New Project"
-   - Select "Deploy from GitHub repo"
-   - Choose your repository
+   - Click "New +" → "Web Service"
+   - Connect your repository
 
 2. **Configure service**:
-   - Root Directory: `server`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
+   - **Name**: `amazon-clone-backend`
+   - **Environment**: `Node`
+   - **Region**: Choose closest to your users
+   - **Branch**: `main`
+   - **Root Directory**: `server`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
 
 3. **Add environment variables**:
    ```
    NODE_ENV=production
-   PORT=5000
+   PORT=10000
    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/amazon-clone
    JWT_SECRET=your_super_secret_jwt_key_here
    JWT_EXPIRE=7d
@@ -238,7 +252,10 @@ Use the MongoDB URI from step 1 above.
    FRONTEND_URL=https://your-app.vercel.app
    ```
 
-4. **Deploy**: Railway will automatically deploy
+4. **Deploy**: Click "Create Web Service" - Render will automatically deploy
+
+### Step 3: Get Your Backend URL
+After deployment, you'll get a URL like: `https://amazon-clone-backend.onrender.com`
 
 ## 🔐 Google OAuth Implementation
 
@@ -397,7 +414,7 @@ The frontend Google OAuth implementation is already integrated in the LoginPage.
 After deployment, your application will be available at:
 
 - **Frontend**: `https://your-app.vercel.app`
-- **Backend API**: `https://your-backend.railway.app`
+- **Backend API**: `https://your-backend.onrender.com`
 - **Admin Dashboard**: `https://your-app.vercel.app/admin`
 
 ## 🆘 Troubleshooting
@@ -413,7 +430,7 @@ After deployment, your application will be available at:
 ### Support
 
 - **Vercel Docs**: https://vercel.com/docs
-- **Railway Docs**: https://docs.railway.app
+- **Render Docs**: https://render.com/docs
 - **MongoDB Atlas**: https://docs.atlas.mongodb.com
 - **Google OAuth**: https://developers.google.com/identity/protocols/oauth2
 
