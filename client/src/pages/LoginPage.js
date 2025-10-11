@@ -41,7 +41,7 @@ const LoginPage = () => {
   };
 
   const handleGoogleLogin = () => {
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
     window.location.href = `${API_BASE_URL}/api/auth/google`;
   };
 

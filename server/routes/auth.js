@@ -239,7 +239,7 @@ router.get('/google/callback',
     failureRedirect: '/login',
     session: false 
   }),
-  (req, res) => {
+  async (req, res) => {
     try {
       // Generate JWT token
       const token = generateToken(req.user._id);
