@@ -130,7 +130,7 @@ Use the MongoDB URI from step 1 above.
    // In client/src/config/api.js
    const API_BASE_URL = process.env.NODE_ENV === 'production' 
      ? 'https://your-backend.onrender.com' 
-     : 'http://localhost:5001';
+     : 'http://localhost:5000';
    ```
 
 2. **Create vercel.json** in the root directory:
@@ -203,7 +203,7 @@ Use the MongoDB URI from step 1 above.
          - key: NODE_ENV
            value: production
          - key: PORT
-           value: 10000
+           value: 5000
    ```
 
 2. **Update package.json** scripts (already done):
@@ -236,7 +236,7 @@ Use the MongoDB URI from step 1 above.
 3. **Add environment variables**:
    ```
    NODE_ENV=production
-   PORT=10000
+   PORT=5000
    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/amazon-clone
    JWT_SECRET=your_super_secret_jwt_key_here
    JWT_EXPIRE=7d
