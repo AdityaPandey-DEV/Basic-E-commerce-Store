@@ -102,11 +102,16 @@ router.get('/categories', async (req, res) => {
     const subcategories = await Product.distinct('subcategory');
     const brands = await Product.distinct('brand');
 
+    // Filter out empty strings and null values
+    const filteredCategories = categories.filter(c => c && c.trim() !== '');
+    const filteredSubcategories = subcategories.filter(s => s && s.trim() !== '');
+    const filteredBrands = brands.filter(b => b && b.trim() !== '');
+
     res.json({
       success: true,
-      categories,
-      subcategories,
-      brands
+      categories: filteredCategories,
+      subcategories: filteredSubcategories,
+      brands: filteredBrands
     });
   } catch (error) {
     console.error('Get categories error:', error);

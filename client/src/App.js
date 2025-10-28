@@ -24,8 +24,10 @@ import OrdersPage from './pages/OrdersPage';
 import WishlistPage from './pages/WishlistPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
+import AdminProductForm from './pages/admin/AdminProductForm';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -36,8 +38,12 @@ function App() {
   useEffect(() => {
     // Load user on app start if token exists
     const token = localStorage.getItem('token');
+    console.log('App.js - Token from localStorage:', token);
     if (token) {
+      console.log('App.js - Dispatching loadUser()');
       dispatch(loadUser());
+    } else {
+      console.log('App.js - No token found in localStorage');
     }
   }, [dispatch]);
 
@@ -69,8 +75,11 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/products/new" element={<AdminProductForm />} />
+          <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
           
           {/* 404 Route */}
           <Route path="*" element={<NotFoundPage />} />

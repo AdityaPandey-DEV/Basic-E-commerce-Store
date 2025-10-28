@@ -85,7 +85,7 @@ router.post('/register', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, nationality } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -93,11 +93,25 @@ router.post('/register', [
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
+    // Map nationality to currency
+    const currencyMap = {
+      'India': 'INR',
+      'United States': 'USD',
+      'United Kingdom': 'GBP',
+      'European Union': 'EUR',
+      'Australia': 'AUD',
+      'Canada': 'CAD',
+      'Japan': 'JPY',
+      'China': 'CNY'
+    };
+
     // Create new user
     const user = new User({
       name,
       email,
-      password
+      password,
+      nationality: nationality || 'India',
+      currency: currencyMap[nationality] || 'INR'
     });
 
     await user.save();
@@ -112,7 +126,9 @@ router.post('/register', [
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        nationality: user.nationality,
+        currency: user.currency
       }
     });
   } catch (error) {
@@ -159,7 +175,9 @@ router.post('/login', [
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.avatar
+        avatar: user.avatar,
+        nationality: user.nationality,
+        currency: user.currency
       }
     });
   } catch (error) {

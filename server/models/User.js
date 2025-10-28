@@ -47,6 +47,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  nationality: {
+    type: String,
+    default: 'India'
+  },
+  currency: {
+    type: String,
+    default: 'INR'
+  },
   wishlist: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product'

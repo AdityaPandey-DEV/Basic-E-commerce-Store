@@ -8,7 +8,7 @@ import {
   X,
   ChevronDown
 } from 'lucide-react';
-import { fetchProducts, setFilters, clearFilters } from '../store/slices/productSlice';
+import { fetchProducts, fetchCategories, setFilters, clearFilters } from '../store/slices/productSlice';
 import ProductCard from '../components/ui/ProductCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
@@ -19,6 +19,11 @@ const ProductsPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
   const [showSortMenu, setShowSortMenu] = useState(false);
+
+  // Fetch categories and brands on mount
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(fetchProducts(filters));

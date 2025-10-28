@@ -12,80 +12,59 @@ import {
   MoreVertical
 } from 'lucide-react';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { api } from '../../config/api';
+import toast from 'react-hot-toast';
 
 const AdminProducts = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
 
-  const { user } = useSelector(state => state.auth);
+  const { user, isAuthenticated, loading: authLoading } = useSelector(state => state.auth);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return;
+    }
+    
+    // After loading is complete, check authentication
+    if (!isAuthenticated || !user) {
+      navigate('/login');
+      return;
+    }
+    
+    if (user.role !== 'admin') {
       navigate('/');
       return;
     }
-  }, [user, navigate]);
+    
+    // Fetch products
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAuthenticated, authLoading, navigate]);
 
-  // Mock products data
-  const mockProducts = [
-    {
-      _id: '1',
-      name: 'Wireless Bluetooth Headphones',
-      price: 99.99,
-      originalPrice: 149.99,
-      category: 'Electronics',
-      brand: 'TechSound',
-      stock: 50,
-      sold: 45,
-      ratings: 4.5,
-      numOfReviews: 128,
-      isActive: true,
-      isFeatured: true,
-      images: [{ url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100' }],
-      createdAt: '2024-01-10T10:00:00Z'
-    },
-    {
-      _id: '2',
-      name: 'Smart Fitness Watch',
-      price: 199.99,
-      originalPrice: 249.99,
-      category: 'Electronics',
-      brand: 'FitTech',
-      stock: 30,
-      sold: 32,
-      ratings: 4.8,
-      numOfReviews: 89,
-      isActive: true,
-      isFeatured: true,
-      images: [{ url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100' }],
-      createdAt: '2024-01-12T15:30:00Z'
-    },
-    {
-      _id: '3',
-      name: 'Organic Cotton T-Shirt',
-      price: 24.99,
-      originalPrice: 34.99,
-      category: 'Clothing',
-      brand: 'EcoWear',
-      stock: 100,
-      sold: 28,
-      ratings: 4.2,
-      numOfReviews: 45,
-      isActive: true,
-      isFeatured: false,
-      images: [{ url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100' }],
-      createdAt: '2024-01-08T09:15:00Z'
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/products?limit=1000'); // Get all products for admin
+      setProducts(response.data.products || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to fetch products');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Beauty'];
+  const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Beauty', 'Toys'];
 
-  const filteredProducts = mockProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.brand.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === '' || product.category === selectedCategory;
+                         (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesCategory = selectedCategory === '' || selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -105,14 +84,20 @@ const AdminProducts = () => {
     navigate(`/products/${productId}`);
   };
 
-  const handleDeleteProduct = (productId) => {
+  const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
-      // Handle delete logic here
-      console.log('Delete product:', productId);
+      try {
+        await api.delete(`/api/products/${productId}`);
+        toast.success('Product deleted successfully');
+        fetchProducts(); // Refresh the list
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        toast.error('Failed to delete product');
+      }
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return <LoadingSpinner size="xl" className="min-h-screen" />;
   }
 

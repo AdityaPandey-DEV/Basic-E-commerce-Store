@@ -15,88 +15,93 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
+import { api } from '../../config/api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState('7d');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
 
-  const { user } = useSelector(state => state.auth);
+  const { user, isAuthenticated, loading: authLoading } = useSelector(state => state.auth);
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
+    console.log('Admin Dashboard - Auth Loading:', authLoading);
+    console.log('Admin Dashboard - User:', user);
+    console.log('Admin Dashboard - Is Authenticated:', isAuthenticated);
+    console.log('Admin Dashboard - User Role:', user?.role);
+    
+    // Wait for auth to finish loading
+    if (authLoading) {
+      console.log('Auth still loading, waiting...');
+      return;
+    }
+    
+    // After loading is complete, check authentication
+    if (!isAuthenticated || !user) {
+      console.log('Not authenticated, redirecting to login');
+      navigate('/login');
+      return;
+    }
+    
+    if (user.role !== 'admin') {
+      console.log('Not admin, redirecting to home');
       navigate('/');
       return;
     }
-  }, [user, navigate]);
+    
+    console.log('Admin authenticated successfully!');
+  }, [user, isAuthenticated, authLoading, navigate]);
 
-  // Mock data for demonstration
-  const mockStats = {
-    totalUsers: 1247,
-    totalProducts: 89,
-    totalOrders: 342,
-    totalRevenue: 45678.90,
-    userGrowth: 12.5,
-    orderGrowth: -3.2,
-    revenueGrowth: 8.7,
-    productGrowth: 5.1
-  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (!user || user.role !== 'admin') {
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        console.log('Fetching admin stats...');
+        const response = await api.get('/api/admin/stats');
+        console.log('Stats received:', response.data);
+        setStats(response.data.stats);
+      } catch (error) {
+        console.error('Error fetching admin stats:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
+        
+        // Check if it's an authentication error
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.error('Authentication error - token might be expired. Please login again.');
+          alert('Your session has expired. Please login again.');
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+          return;
+        }
+        
+        // Set default stats so the page doesn't stay in loading state
+        setStats({
+          totalUsers: 0,
+          totalProducts: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          recentOrders: [],
+          topProducts: []
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const mockRecentOrders = [
-    {
-      _id: '1',
-      user: { name: 'John Doe', email: 'john@example.com' },
-      totalPrice: 129.99,
-      status: 'delivered',
-      createdAt: '2024-01-15T10:30:00Z'
-    },
-    {
-      _id: '2',
-      user: { name: 'Jane Smith', email: 'jane@example.com' },
-      totalPrice: 89.99,
-      status: 'shipped',
-      createdAt: '2024-01-15T09:15:00Z'
-    },
-    {
-      _id: '3',
-      user: { name: 'Bob Johnson', email: 'bob@example.com' },
-      totalPrice: 199.99,
-      status: 'processing',
-      createdAt: '2024-01-15T08:45:00Z'
-    },
-    {
-      _id: '4',
-      user: { name: 'Alice Brown', email: 'alice@example.com' },
-      totalPrice: 49.99,
-      status: 'pending',
-      createdAt: '2024-01-15T07:20:00Z'
+    if (!authLoading && user && user.role === 'admin') {
+      fetchStats();
+    } else if (!authLoading) {
+      // If not admin or not authenticated, stop loading
+      setLoading(false);
     }
-  ];
+  }, [user, authLoading]);
 
-  const mockTopProducts = [
-    {
-      _id: '1',
-      name: 'Wireless Bluetooth Headphones',
-      sold: 45,
-      revenue: 4499.55,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100'
-    },
-    {
-      _id: '2',
-      name: 'Smart Fitness Watch',
-      sold: 32,
-      revenue: 6399.68,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100'
-    },
-    {
-      _id: '3',
-      name: 'Organic Cotton T-Shirt',
-      sold: 28,
-      revenue: 699.72,
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100'
-    }
-  ];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -158,7 +163,8 @@ const AdminDashboard = () => {
     </div>
   );
 
-  if (loading) {
+  // Show loading spinner while checking authentication
+  if (authLoading || loading || !stats) {
     return <LoadingSpinner size="xl" className="min-h-screen" />;
   }
 
@@ -198,30 +204,30 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Users"
-            value={mockStats.totalUsers.toLocaleString()}
+            value={stats.totalUsers.toLocaleString()}
             icon={<Users className="h-6 w-6 text-amazon-orange" />}
-            growth={mockStats.userGrowth}
+            growth={0}
             trend="up"
           />
           <StatCard
             title="Total Products"
-            value={mockStats.totalProducts}
+            value={stats.totalProducts}
             icon={<Package className="h-6 w-6 text-amazon-orange" />}
-            growth={mockStats.productGrowth}
+            growth={0}
             trend="up"
           />
           <StatCard
             title="Total Orders"
-            value={mockStats.totalOrders}
+            value={stats.totalOrders}
             icon={<ShoppingCart className="h-6 w-6 text-amazon-orange" />}
-            growth={mockStats.orderGrowth}
-            trend="down"
+            growth={0}
+            trend="up"
           />
           <StatCard
             title="Total Revenue"
-            value={formatCurrency(mockStats.totalRevenue)}
+            value={formatCurrency(stats.totalRevenue)}
             icon={<DollarSign className="h-6 w-6 text-amazon-orange" />}
-            growth={mockStats.revenueGrowth}
+            growth={0}
             trend="up"
           />
         </div>
@@ -243,7 +249,7 @@ const AdminDashboard = () => {
               </div>
               <div className="p-6">
                 <div className="space-y-4">
-                  {mockRecentOrders.map((order) => (
+                  {stats.recentOrders.map((order) => (
                     <div key={order._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 bg-amazon-orange rounded-full flex items-center justify-center text-white font-semibold">
@@ -286,13 +292,13 @@ const AdminDashboard = () => {
               </div>
               <div className="p-6">
                 <div className="space-y-4">
-                  {mockTopProducts.map((product, index) => (
+                  {stats.topProducts.map((product, index) => (
                     <div key={product._id} className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-semibold text-gray-600">
                         {index + 1}
                       </div>
                       <img
-                        src={product.image}
+                        src={product.images?.[0]?.url || '/placeholder-product.jpg'}
                         alt={product.name}
                         className="w-12 h-12 object-cover rounded-md"
                       />
@@ -301,7 +307,7 @@ const AdminDashboard = () => {
                         <p className="text-sm text-gray-500">{product.sold} sold</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-semibold text-gray-900">{formatCurrency(product.revenue)}</p>
+                        <p className="text-sm font-semibold text-gray-900">{formatCurrency(product.price * product.sold)}</p>
                       </div>
                     </div>
                   ))}

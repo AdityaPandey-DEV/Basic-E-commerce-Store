@@ -9,10 +9,13 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { updateQuantity, removeFromCart } from '../store/slices/cartSlice';
+import { convertPrice, formatPrice } from '../utils/currency';
 
 const CartPage = () => {
   const dispatch = useDispatch();
   const { items, totalItems, totalPrice } = useSelector(state => state.cart);
+  const { user } = useSelector(state => state.auth);
+  const userCurrency = user?.currency || 'USD';
 
   const handleQuantityChange = (productId, newQuantity) => {
     if (newQuantity <= 0) {
@@ -67,7 +70,7 @@ const CartPage = () => {
                       {item.name}
                     </h3>
                     <p className="text-amazon-orange font-semibold">
-                      ${item.price}
+                      {formatPrice(convertPrice(item.price, userCurrency), userCurrency)}
                     </p>
                   </div>
 
@@ -92,7 +95,7 @@ const CartPage = () => {
 
                     <div className="text-right">
                       <p className="text-lg font-semibold text-gray-900">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(convertPrice(item.price * item.quantity, userCurrency), userCurrency)}
                       </p>
                     </div>
 
@@ -116,26 +119,26 @@ const CartPage = () => {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal ({totalItems} items)</span>
-                  <span className="font-medium">${totalPrice.toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice(convertPrice(totalPrice, userCurrency), userCurrency)}</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">
-                    {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+                    {shippingCost === 0 ? 'Free' : formatPrice(convertPrice(shippingCost, userCurrency), userCurrency)}
                   </span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice(convertPrice(tax, userCurrency), userCurrency)}</span>
                 </div>
                 
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">Total</span>
                     <span className="text-lg font-semibold text-amazon-orange">
-                      ${finalTotal.toFixed(2)}
+                      {formatPrice(convertPrice(finalTotal, userCurrency), userCurrency)}
                     </span>
                   </div>
                 </div>

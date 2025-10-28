@@ -10,69 +10,56 @@ import {
   Search,
   Filter
 } from 'lucide-react';
+import { api } from '../../config/api';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const AdminOrders = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
 
-  const { user } = useSelector(state => state.auth);
+  const { user, loading: authLoading } = useSelector(state => state.auth);
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!user || user.role !== 'admin') {
       navigate('/');
       return;
     }
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
-  // Mock orders data
-  const mockOrders = [
-    {
-      _id: '1',
-      user: { name: 'John Doe', email: 'john@example.com' },
-      totalPrice: 129.99,
-      status: 'delivered',
-      paymentMethod: 'credit_card',
-      isPaid: true,
-      createdAt: '2024-01-15T10:30:00Z',
-      orderItems: [
-        { name: 'Wireless Headphones', quantity: 1, price: 99.99 },
-        { name: 'Phone Case', quantity: 2, price: 15.00 }
-      ]
-    },
-    {
-      _id: '2',
-      user: { name: 'Jane Smith', email: 'jane@example.com' },
-      totalPrice: 89.99,
-      status: 'shipped',
-      paymentMethod: 'paypal',
-      isPaid: true,
-      createdAt: '2024-01-15T09:15:00Z',
-      orderItems: [
-        { name: 'Smart Watch', quantity: 1, price: 89.99 }
-      ]
-    },
-    {
-      _id: '3',
-      user: { name: 'Bob Johnson', email: 'bob@example.com' },
-      totalPrice: 199.99,
-      status: 'processing',
-      paymentMethod: 'credit_card',
-      isPaid: true,
-      createdAt: '2024-01-15T08:45:00Z',
-      orderItems: [
-        { name: 'Laptop', quantity: 1, price: 199.99 }
-      ]
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user || user.role !== 'admin') return;
+      
+      try {
+        setLoading(true);
+        const response = await api.get('/api/orders/admin/all', {
+          params: { limit: 1000 }
+        });
+        setOrders(response.data.orders);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        toast.error('Failed to fetch orders');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!authLoading && user && user.role === 'admin') {
+      fetchOrders();
     }
-  ];
+  }, [user, authLoading]);
 
   const statuses = ['All', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
 
-  const filteredOrders = mockOrders.filter(order => {
-    const matchesSearch = order.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order._id.includes(searchTerm);
     const matchesStatus = statusFilter === '' || order.status === statusFilter;
     return matchesSearch && matchesStatus;

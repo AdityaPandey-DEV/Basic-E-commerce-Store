@@ -75,9 +75,6 @@ const CheckoutPage = () => {
   const onFinalSubmit = async () => {
     setIsProcessing(true);
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
       // Create order
       const orderData = {
         orderItems: items.map(item => ({
@@ -92,8 +89,8 @@ const CheckoutPage = () => {
         totalPrice: finalTotal
       };
 
-      // Dispatch order creation (you'll need to implement this in your order slice)
-      // dispatch(createOrder(orderData));
+      // Dispatch order creation
+      await dispatch(createOrder(orderData)).unwrap();
       
       // Clear cart
       dispatch(clearCart());
@@ -101,7 +98,7 @@ const CheckoutPage = () => {
       toast.success('Order placed successfully!');
       navigate('/orders');
     } catch (error) {
-      toast.error('Failed to place order. Please try again.');
+      toast.error(error || 'Failed to place order. Please try again.');
     } finally {
       setIsProcessing(false);
     }
