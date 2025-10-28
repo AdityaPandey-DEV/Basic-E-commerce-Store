@@ -17,6 +17,7 @@ import { addToCart } from '../store/slices/cartSlice';
 import { addToWishlist } from '../store/slices/wishlistSlice';
 import ProductCard from '../components/ui/ProductCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { convertAndFormat } from '../utils/currency';
 import toast from 'react-hot-toast';
 
 const ProductDetailPage = () => {
@@ -29,7 +30,8 @@ const ProductDetailPage = () => {
   const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
 
   const { currentProduct, relatedProducts, loading } = useSelector(state => state.products);
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const userCurrency = user?.currency || 'USD';
 
   useEffect(() => {
     dispatch(fetchProductById(id));
@@ -170,12 +172,12 @@ const ProductDetailPage = () => {
 
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-amazon-orange">
-                  ${currentProduct.price}
+                  {convertAndFormat(currentProduct.price, userCurrency)}
                 </span>
                 {currentProduct.originalPrice && currentProduct.originalPrice > currentProduct.price && (
                   <>
                     <span className="text-xl text-gray-500 line-through">
-                      ${currentProduct.originalPrice}
+                      {convertAndFormat(currentProduct.originalPrice, userCurrency)}
                     </span>
                     <span className="bg-red-500 text-white text-sm px-2 py-1 rounded">
                       {Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)}% OFF

@@ -31,7 +31,7 @@ const OrdersPage = () => {
       navigate('/login');
       return;
     }
-    // dispatch(fetchUserOrders());
+    dispatch(fetchUserOrders());
   }, [user, navigate, dispatch]);
 
   const getStatusColor = (status) => {
@@ -76,82 +76,9 @@ const OrdersPage = () => {
     });
   };
 
-  const mockOrders = [
-    {
-      _id: '1',
-      orderItems: [
-        {
-          product: { _id: '1', name: 'Wireless Bluetooth Headphones', images: [{ url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100' }] },
-          name: 'Wireless Bluetooth Headphones',
-          image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100',
-          price: 99.99,
-          quantity: 1
-        },
-        {
-          product: { _id: '2', name: 'Smart Fitness Watch', images: [{ url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100' }] },
-          name: 'Smart Fitness Watch',
-          image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100',
-          price: 199.99,
-          quantity: 1
-        }
-      ],
-      shippingAddress: {
-        name: 'John Doe',
-        street: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'USA',
-        phone: '+1 (555) 123-4567'
-      },
-      paymentMethod: 'credit_card',
-      itemsPrice: 299.98,
-      taxPrice: 29.99,
-      shippingPrice: 0,
-      totalPrice: 329.97,
-      isPaid: true,
-      paidAt: '2024-01-15T10:30:00Z',
-      isDelivered: false,
-      status: 'shipped',
-      trackingNumber: 'TRK123456789',
-      createdAt: '2024-01-15T10:00:00Z'
-    },
-    {
-      _id: '2',
-      orderItems: [
-        {
-          product: { _id: '3', name: 'Organic Cotton T-Shirt', images: [{ url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100' }] },
-          name: 'Organic Cotton T-Shirt',
-          image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100',
-          price: 24.99,
-          quantity: 2
-        }
-      ],
-      shippingAddress: {
-        name: 'John Doe',
-        street: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'USA',
-        phone: '+1 (555) 123-4567'
-      },
-      paymentMethod: 'paypal',
-      itemsPrice: 49.98,
-      taxPrice: 5.00,
-      shippingPrice: 10.00,
-      totalPrice: 64.98,
-      isPaid: true,
-      paidAt: '2024-01-10T14:20:00Z',
-      isDelivered: true,
-      deliveredAt: '2024-01-12T16:45:00Z',
-      status: 'delivered',
-      trackingNumber: 'TRK987654321',
-      createdAt: '2024-01-10T14:00:00Z'
-    }
-  ];
-
-  const displayOrders = orders.length > 0 ? orders : mockOrders;
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   const renderOrderCard = (order) => (
     <div key={order._id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -368,7 +295,7 @@ const OrdersPage = () => {
         </div>
 
         {/* Orders List */}
-        {displayOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <div className="text-center py-12">
             <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">No orders yet</h2>
@@ -382,7 +309,7 @@ const OrdersPage = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {displayOrders.map(renderOrderCard)}
+            {orders.map(renderOrderCard)}
           </div>
         )}
 

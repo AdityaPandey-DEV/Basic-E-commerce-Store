@@ -1,11 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../../config/api';
 
+// Check if token exists on initialization
+const tokenExists = !!localStorage.getItem('token');
+
 const initialState = {
   user: null,
   token: localStorage.getItem('token'),
   isAuthenticated: false,
-  loading: false,
+  loading: tokenExists, // Start with loading: true if token exists
   error: null,
 };
 
@@ -41,13 +44,18 @@ export const loadUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
+      console.log('loadUser - Token:', token);
       if (!token) {
         throw new Error('No token found');
       }
       
+      console.log('loadUser - Making API call to /api/auth/me');
       const response = await api.get('/api/auth/me');
+      console.log('loadUser - Response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('loadUser - Error:', error);
+      console.error('loadUser - Error response:', error.response?.data);
       localStorage.removeItem('token');
       return rejectWithValue(error.response?.data?.message || 'Failed to load user');
     }
@@ -124,15 +132,19 @@ const authSlice = createSlice({
       })
       // Load User
       .addCase(loadUser.pending, (state) => {
+        console.log('loadUser.pending');
         state.loading = true;
       })
       .addCase(loadUser.fulfilled, (state, action) => {
+        console.log('loadUser.fulfilled - Payload:', action.payload);
         state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
         state.error = null;
+        console.log('loadUser.fulfilled - Updated state:', { user: state.user, isAuthenticated: state.isAuthenticated });
       })
       .addCase(loadUser.rejected, (state, action) => {
+        console.log('loadUser.rejected - Error:', action.payload);
         state.loading = false;
         state.error = action.payload;
         state.isAuthenticated = false;

@@ -226,8 +226,12 @@ const seedDatabase = async () => {
     const products = await Product.insertMany(sampleProducts);
     console.log(`Inserted ${products.length} products`);
 
-    // Insert sample users
-    const users = await User.insertMany(sampleUsers);
+    // Insert sample users (using create to trigger password hashing)
+    const users = [];
+    for (const userData of sampleUsers) {
+      const user = await User.create(userData);
+      users.push(user);
+    }
     console.log(`Inserted ${users.length} users`);
 
     console.log('Database seeded successfully!');

@@ -77,11 +77,11 @@ const productSchema = new mongoose.Schema({
   },
   subcategory: {
     type: String,
-    required: true
+    default: ''
   },
   brand: {
     type: String,
-    required: true
+    default: ''
   },
   stock: {
     type: Number,

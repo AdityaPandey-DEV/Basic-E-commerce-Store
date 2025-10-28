@@ -4,11 +4,13 @@ import { Star, Heart, ShoppingCart } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../store/slices/cartSlice';
 import { addToWishlist } from '../../store/slices/wishlistSlice';
+import { convertAndFormat } from '../../utils/currency';
 import toast from 'react-hot-toast';
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector(state => state.auth);
+  const { isAuthenticated, user } = useSelector(state => state.auth);
+  const userCurrency = user?.currency || 'USD';
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -96,11 +98,11 @@ const ProductCard = ({ product }) => {
 
         <div className="flex items-center space-x-2">
           <span className="text-lg font-bold text-amazon-orange">
-            ${product.price}
+            {convertAndFormat(product.price, userCurrency)}
           </span>
           {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-sm text-gray-500 line-through">
-              ${product.originalPrice}
+              {convertAndFormat(product.originalPrice, userCurrency)}
             </span>
           )}
         </div>

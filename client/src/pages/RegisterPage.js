@@ -123,6 +123,31 @@ const RegisterPage = () => {
             </div>
 
             <div>
+              <label htmlFor="nationality" className="block text-sm font-medium text-gray-700">
+                Nationality
+              </label>
+              <div className="mt-1">
+                <select
+                  {...register('nationality')}
+                  className="input-field"
+                  defaultValue="India"
+                >
+                  <option value="India">India (₹ INR)</option>
+                  <option value="United States">United States ($ USD)</option>
+                  <option value="United Kingdom">United Kingdom (£ GBP)</option>
+                  <option value="European Union">European Union (€ EUR)</option>
+                  <option value="Australia">Australia ($ AUD)</option>
+                  <option value="Canada">Canada ($ CAD)</option>
+                  <option value="Japan">Japan (¥ JPY)</option>
+                  <option value="China">China (¥ CNY)</option>
+                </select>
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Prices will be displayed in your local currency
+              </p>
+            </div>
+
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
